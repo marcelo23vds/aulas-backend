@@ -1,12 +1,12 @@
 /********************************************************************
  * Objetivo: Realizar o calculo de médias escolares (condicionais, tratamento de erro, variáveis)
  * Autor: Marcelo Vieira
- * Data: 30/07/2025
- * Versão: 1.0
+ * Data: 05/08/2025
+ * Versão: 1.1
 ********************************************************************/
 
-//import do arquivo de medias escolares
-var calculoMedia = require('./modulo/media.js')
+//import do arquivo/biblioteca de medias escolares
+var mediaEscolar = require('./modulo/media.js')
 
 //import da biblioteca do readline
 var readline = require('readline')
@@ -52,14 +52,17 @@ var entradaDeDados = readline.createInterface({
 * Não   not     !
 *******************************************************************/
 
-const MESSAGE_ERRO = 'ERRO: Nota não informada, vazia, com valores negativos ou maior que 10'
+//padrão de mensagens de erro da aplicação
+const MESSAGE_ERROR_EMPTY        = 'ERRO: Existem campos que não foram preenchidos.'
+const MESSAGE_ERROR_NOT_NUMBER   = 'ERRO: Não é possivel calcular com a entrada de letras.'
+const MESSAGE_ERROR_OUT_OF_RANGE = 'ERRO: Os valores informados precisam ser entre 0 e 10.'
 
 //entrada de dados do nome do aluno
 entradaDeDados.question('Digite o nome do aluno: ', function(nome){
     let nomeAluno = String(nome).toUpperCase()
 
     if (nomeAluno == ''){
-        console.log('ERRO: O campo Nome não pode ficar vazio!')
+        console.log(MESSAGE_ERROR_EMPTY)
         entradaDeDados.close()
     } else {
         //entrada de dados da nota 1
@@ -67,48 +70,57 @@ entradaDeDados.question('Digite o nome do aluno: ', function(nome){
             let nota1 = valor1
 
             if(nota1 == '' || Number(nota1) < 0 || Number(nota1) > 10) {
-                console.log(MESSAGE_ERRO)
-                entradaDeDados.close()
+                console.log(MESSAGE_ERROR_OUT_OF_RANGE)
+                entradaDeDados.close() 
+            
+            } else if(isNaN(nota1)) {
+                console.log(MESSAGE_ERROR_NOT_NUMBER)
+                entradaDeDados.close() 
             } else {
                 //entrada de dados da nota 2
                 entradaDeDados.question('Digite a nota 2: ', function(valor2){
                     let nota2 = valor2
 
                     if(nota2 == '' || Number(nota2) < 0 || Number(nota2) > 10) {
-                        console.log(MESSAGE_ERRO)
+                        console.log(MESSAGE_ERROR_OUT_OF_RANGE)
                         entradaDeDados.close()
+                    } else if(isNaN(nota2)) {
+                        console.log(MESSAGE_ERROR_NOT_NUMBER)
+                        entradaDeDados.close() 
                     } else {
                         //entrada de dados da nota 3
                         entradaDeDados.question('Digite a nota 3: ', function(valor3){
                             let nota3 = valor3
 
                             if(nota3 == '' || Number(nota3) < 0 || Number(nota3) > 10) {
-                                console.log(MESSAGE_ERRO)
+                                console.log(MESSAGE_ERROR_OUT_OF_RANGE)
                                 entradaDeDados.close()
+                            } else if(isNaN(nota3)) {
+                                console.log(MESSAGE_ERROR_NOT_NUMBER)
+                                entradaDeDados.close() 
                             } else {
                                 //entrada de dados da nota 4
                                 entradaDeDados.question('Digite a nota 4: ', function(valor4){
                                     let nota4 = valor4
 
                                     if (nota4 == '' || Number(nota4) < 0 || Number(nota4) > 10) {
-                                        console.log(MESSAGE_ERRO)
+                                        console.log(MESSAGE_ERROR_OUT_OF_RANGE)
                                         entradaDeDados.close()
+                                    } else if(isNaN(nota4)) {
+                                        console.log(MESSAGE_ERROR_NOT_NUMBER)
+                                        entradaDeDados.close() 
                                     } else {
-                                        //calculando a media do aluno
-                                        let statusAluno = ''
-                                        //chamo a função que calcula a media, retorna o valor na variavel media
-                                        let media = calculoMedia.mediaEscolar(nota1, nota2, nota3, nota4)
+                                        
+                                        //chama função de calcular media do aluno
+                                        let media = mediaEscolar.calcularMedia(nota1,nota2,nota3,nota4)
+                                        //chama função de verificar o status do aluno
+                                        let statusAluno = mediaEscolar.validarStatus(media)
 
-                                        if (media < 5 && media >= 0) {
-                                            statusAluno = 'REPROVADO'
-                                        } else if(media >= 5 && media < 7){
-                                            statusAluno = 'em EXAME'
-                                        } else if(media >= 7 && media <= 10) {
-                                            statusAluno = 'APROVADO'
+                                        if(statusAluno) {
+                                            console.log(`O aluno(a) ${nomeAluno}, teve a média: ${media} e está ${statusAluno}`)
+                                            entradaDeDados.close()
                                         }
-                                            
-                                        //toFixed() -> permite fixar a quantidade de casas decimais
-                                        console.log(`O aluno(a) ${nomeAluno}, teve a média: ${media} e está ${statusAluno}`)
+                                        
                                     }
                                 })//fecha a nota 4
                             }
